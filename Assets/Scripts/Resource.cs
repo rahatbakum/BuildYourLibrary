@@ -5,7 +5,7 @@ public class Resource : MonoBehaviour
     const float AnimationSpeed = 8f;
     const float MinGoodDistance = 0.025f;
 
-    public bool IsAvailableToCatch;
+    public bool IsAvailableToCatch = true;
     public ResourceType resourceType;
 
     private Vector3 _targetPosition;

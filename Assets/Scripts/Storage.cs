@@ -15,6 +15,15 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
 
     protected void Start()
     {
+        // BoxCollider boxCollider = GetComponent<BoxCollider>();
+        // Collider[] colliders = Physics.OverlapBox(boxCollider.center, boxCollider.size * 0.5f, transform.rotation);
+
+        // foreach(var collider in colliders)
+        // {
+        //     if(collider.tag == "Resource")
+        //         AddNewItem(collider.GetComponent<Resource>());
+        // }
+
         _items = new Resource[GetMaxItemAmount()];
         ItemAmount = 0;
     }
@@ -42,9 +51,20 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         return ItemAmount >= GetMaxItemAmount();
     }
 
+    protected bool isInThisStorage(Resource resource)
+    {
+        foreach(var item in _items)
+        {
+            if(item == resource)
+                return true;
+        }
+
+        return false;
+    }
+
     public virtual void AddNewItem(Resource resource)
     {
-        if(IsFull())
+        if(IsFull() || isInThisStorage(resource))
             return;
         
         _items[ItemAmount] = resource;
