@@ -10,5 +10,5 @@ public interface IResourceHolder
     void AddNewItem(Resource resource);
     void RemoveItemByNumber(IResourceHolder sender, int number);
     void RemoveItem(IResourceHolder sender, ResourceType resourceType);
-    Vector3 PositionByNumber(int number);
+    //Vector3 PositionByNumber(int number);
 }

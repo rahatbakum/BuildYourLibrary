@@ -3,19 +3,19 @@ using UnityEngine;
 [RequireComponent (typeof (Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 8f;
+    public float Speed = 8f;
     private Rigidbody _rigidbody;
-    public PlayerStorage storage; 
+    public PlayerStorage Storage; 
     
     private PhysicsMovement _physicsMovement;
 
-    public Vector3 worldRightDirection = new Vector3(1f, 0f, -1f);
-    public Vector3 worldForwardDirection = new Vector3(1f, 0f, 1f);
+    public Vector3 WorldRightDirection = new Vector3(1f, 0f, -1f);
+    public Vector3 WorldForwardDirection = new Vector3(1f, 0f, 1f);
 
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody>(); 
-        _physicsMovement = new PhysicsMovement(speed, _rigidbody, transform, worldRightDirection, worldForwardDirection); 
+        _physicsMovement = new PhysicsMovement(Speed, _rigidbody, transform, WorldRightDirection, WorldForwardDirection); 
     }
 
     public void Move(Vector2 axisDirection){

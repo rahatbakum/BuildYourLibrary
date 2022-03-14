@@ -1,21 +1,38 @@
 using UnityEngine;
 
+
+[RequireComponent (typeof(BoxCollider))]
 public class GivingStorage : Storage
 {
 
-    public override Vector3 PositionByNumber(int number)
-    {
-        Vector3 startPosition = transform.position + transform.right * StorageOffset.x + transform.up * StorageOffset.y + transform.forward * StorageOffset.z;
-        int yNumber = Mathf.CeilToInt((float) number / MaxItemAmount.Item1 / MaxItemAmount.Item3);
-        int layerNumber = number % (MaxItemAmount.Item1 * MaxItemAmount.Item3);
-        int xNumber = layerNumber % MaxItemAmount.Item1;
-        int zNumber = Mathf.CeilToInt((float) layerNumber / MaxItemAmount.Item1);
+    public float GivingTimeInterval = 0.5f;
 
-        return startPosition + (xNumber + 0.5f) * transform.right + (yNumber + 0.5f) * transform.up + (zNumber + 0.5f) * transform.forward;
+    private float _startTime;
+    private float _lastGiveTime;
+
+    protected override void Start()
+    {
+        base.Start();
+        
+        _startTime = Time.time;
+        _lastGiveTime = _startTime;
+
+        BoxCollider boxCollider = GetComponent<BoxCollider>();
+        Collider[] colliders = Physics.OverlapBox(transform.position + boxCollider.center, boxCollider.size * 0.5f, transform.rotation);
+        foreach(var collider in colliders)
+        {
+            if(collider.tag == "Resource"){
+                AddNewItem(collider.GetComponent<Resource>());
+            }
+        }
     }
 
-    void OnTriggerEnter(Collider other)
+
+    void OnTriggerStay(Collider other)
     {
+        if(Time.time - _lastGiveTime < GivingTimeInterval)
+            return;
+
         if(other?.tag != "Player")
             return;
         
@@ -26,6 +43,11 @@ public class GivingStorage : Storage
         if(playerStorage.IsFull())
             return;
         
+        if(!IsHasResourceType(ResourceType.Any))
+            return;
+        
         RemoveItem(playerStorage as IResourceHolder, ResourceType.Any);
+
+        _lastGiveTime = Time.time;
     }
 }

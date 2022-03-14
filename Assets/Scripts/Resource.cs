@@ -2,56 +2,57 @@ using UnityEngine;
 
 public class Resource : MonoBehaviour
 {
-    const float AnimationSpeed = 8f;
+    const float AnimationSpeed = 10f;
+    const float AnimationRotationSpeed = 5f;
     const float MinGoodDistance = 0.025f;
 
     public bool IsAvailableToCatch = true;
     public ResourceType resourceType;
 
-    private Vector3 _targetPosition;
     private bool _isInRightPlace;
     private Transform _resourceBuffer;
-    private Transform _parent;
+    private Transform _slot;
 
     void Awake()
     {
         ResourceBuffer rb = FindObjectOfType<ResourceBuffer>();
         _resourceBuffer = rb.transform;
         _isInRightPlace = true;
-        _targetPosition = transform.position;
-        _parent = _resourceBuffer;
-        transform.SetParent(_parent);
+        _slot = _resourceBuffer;
+        transform.SetParent(_slot);
     }
 
     void Update()
     {
-        MoveToTargetPosition();
+        MoveToSlot();
     }
 
-    public void SetNewResourceHolder ( Transform parent, Vector3 targetPosition)
+    public void SetNewResourceHolder (Transform slot)
     {
         if(!IsAvailableToCatch)
             return;
 
-        _targetPosition = targetPosition;
         _isInRightPlace = false;
-        _parent = parent;
-        transform.SetParent(_resourceBuffer);
+        _slot = slot;
+        transform.SetParent(_slot);
     }
     void SetInRightPlace()
     {
-        transform.position = _targetPosition;
+        transform.position = _slot.position;
+        transform.rotation = _slot.rotation;
         _isInRightPlace = true;
-        transform.SetParent(_parent);
     }
 
-    void MoveToTargetPosition()
+    void MoveToSlot()
     {
         if(_isInRightPlace)
             return;
 
-        if (Vector3.Distance(transform.position, _targetPosition) > MinGoodDistance)
-            transform.position = Vector3.Lerp(transform.position, _targetPosition, AnimationSpeed * Time.deltaTime);
+        if (Vector3.Distance(transform.position, _slot.position) > MinGoodDistance)
+        {
+            transform.localPosition = Vector3.Lerp(transform.localPosition, Vector3.zero, AnimationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Lerp(transform.rotation, _slot.rotation, AnimationRotationSpeed * Time.deltaTime);
+        }
         else {
             SetInRightPlace();
         }
