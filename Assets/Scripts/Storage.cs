@@ -21,12 +21,16 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
     {
         Slots = new Transform[GetMaxItemAmount()];
         Quaternion rotation = Quaternion.Euler(DefaultRotation);
-        Transform parentForSlots = (Instantiate(new GameObject(), transform) as GameObject).transform;
+        Transform parentForSlots = new GameObject().transform;
+        parentForSlots.SetParent(transform);
+        parentForSlots.localPosition = Vector3.zero;
+        parentForSlots.localRotation = Quaternion.identity;
         parentForSlots.name = "Slots";
 
         for (int i = 0; i < GetMaxItemAmount(); i++)
         {
-            Slots[i] = Instantiate(new GameObject(), parentForSlots).transform;
+            Slots[i] = new GameObject().transform;
+            Slots[i].SetParent(parentForSlots);
             Slots[i].localPosition = LocalPositionByNumber(i);
             Slots[i].localRotation = rotation;
             Slots[i].name = $"Slot {i}";
@@ -89,7 +93,7 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         ItemAmount++;
     }
 
-    public virtual void RemoveItemByNumber(IResourceHolder sender, int number)
+    public virtual void RemoveItem(IResourceHolder sender, int number)
     {
         sender.AddNewItem(Items[number]);
 
@@ -117,7 +121,7 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
 
          if(resourceType == ResourceType.Any)
         {
-            RemoveItemByNumber(sender, ItemAmount - 1);
+            RemoveItem(sender, ItemAmount - 1);
             return;
         }
 
@@ -125,7 +129,7 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         {
             if(Items[i].resourceType == resourceType)
             {
-                RemoveItemByNumber(sender, i);
+                RemoveItem(sender, i);
                 return;
             }
         }

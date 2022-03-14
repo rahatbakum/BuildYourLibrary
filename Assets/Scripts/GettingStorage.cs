@@ -19,18 +19,44 @@ public class GettingStorage : Storage
             throw new System.Exception($"RequiringResources.Length != AmountOfRequiringResources.Length ({RequiringResources.Length}, {AmountOfRequiringResources.Length})");
     }
 
-    public int GetRequiringResourceAmount(ResourceType resourceType)
+    private int GetRequiringResourceIndex(ResourceType resourceType)
     {
         for(int i = 0; i < RequiringResources.Length; i++)
         {
             if(RequiringResources[i] == resourceType)
-                return AmountOfRequiringResources[i];       
+                return i;       
         }
 
-        return 0;
+        return -1;
     }
 
-    public void SetNewRequiringResources (ResourceType[] resourceType, int[] amount)
+    public int GetRequiringResourceAmount(ResourceType resourceType)
+    {
+        int requiringResourceIndex = GetRequiringResourceIndex(resourceType);
+
+        if(requiringResourceIndex < 0)
+            return 0;
+
+        return AmountOfRequiringResources[requiringResourceIndex];
+    }
+
+    /// <summary>
+    /// Returns resourceType when storage need it
+    /// Returns ResourceType.Any when storage need ResourseType.Any
+    /// Returns ResourceType.Empty when storage don't need resourseType
+    /// </summary> 
+
+    public ResourceType IsNeedThisResource(ResourceType resourceType) 
+    {
+        if(GetRequiringResourceAmount(resourceType) > 0)
+            return resourceType;
+        if(GetRequiringResourceAmount(ResourceType.Any) > 0)
+            return ResourceType.Any;
+
+        return ResourceType.Empty;
+    }
+
+    public void SetNewRequiringResources(ResourceType[] resourceType, int[] amount)
     {
         RequiringResources = resourceType;
         AmountOfRequiringResources = amount;
@@ -38,15 +64,39 @@ public class GettingStorage : Storage
         CheckIsRightLengths();
     }
 
-    public void SetNewRequiringResources (ResourceType resourceType, int amount)
+    public void SetNewRequiringResources(ResourceType resourceType, int amount)
     {
+        CheckIsRightLengths();
+
+        int requiringResourceIndex = GetRequiringResourceIndex(resourceType);
+        if(AmountOfRequiringResources[requiringResourceIndex] > 0)
+        {
+            AmountOfRequiringResources[requiringResourceIndex] += amount;
+            return;
+        }
+
         System.Array.Resize<ResourceType>(ref RequiringResources, RequiringResources.Length);
         RequiringResources[RequiringResources.Length - 1] = resourceType;
         
         System.Array.Resize<int>(ref AmountOfRequiringResources, AmountOfRequiringResources.Length);
         AmountOfRequiringResources[AmountOfRequiringResources.Length - 1] = amount;
+    }
 
-        CheckIsRightLengths();
+    private void DecreaseResourceAmount(ResourceType resourceType)
+    {
+        int requiringResourceIndex = GetRequiringResourceIndex(resourceType);
+        
+        AmountOfRequiringResources[requiringResourceIndex]--;
+    }
+
+    public override void AddNewItem(Resource resource)
+    {
+        ResourceType isNeedThisResource = IsNeedThisResource(resource.resourceType);
+        if(isNeedThisResource == ResourceType.Empty)
+            throw new System.Exception($"GettingStorage don't need {resource.resourceType}");
+        base.AddNewItem(resource);
+
+        DecreaseResourceAmount(isNeedThisResource);
     }
 
     protected override void Start()
@@ -63,14 +113,18 @@ public class GettingStorage : Storage
         foreach(var collider in colliders)
         {
             if(collider.tag == "Resource"){
-                AddNewItem(collider.GetComponent<Resource>());
+                Resource resource = collider.GetComponent<Resource>();
+                if(IsNeedThisResource(resource.resourceType) != ResourceType.Empty)
+                    AddNewItem(collider.GetComponent<Resource>());
             }
         }
     }
 
+    
 
     void OnTriggerStay(Collider other)
     {
+
         if(Time.time - _lastGiveTime < GivingTimeInterval)
             return;
 
@@ -84,6 +138,9 @@ public class GettingStorage : Storage
         if(IsFull())
             return;
         
+        if(IsNeedThisResource(ResourceType.Any) == ResourceType.Empty)
+            return;
+
         if(!playerStorage.IsHasResourceType(ResourceType.Any))
             return;
         

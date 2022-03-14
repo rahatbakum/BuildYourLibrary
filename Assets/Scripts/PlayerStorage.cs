@@ -8,10 +8,10 @@ public class PlayerStorage : Storage
         resource.IsAvailableToCatch = false;
     }
 
-    public override void RemoveItemByNumber(IResourceHolder sender, int number)
+    public override void RemoveItem(IResourceHolder sender, int number)
     {
         Items[number].IsAvailableToCatch = true;
-        base.RemoveItemByNumber(sender, number);
+        base.RemoveItem(sender, number);
     }
 
 }
