@@ -15,11 +15,7 @@ public class Resource : MonoBehaviour
 
     void Awake()
     {
-        ResourceBuffer rb = FindObjectOfType<ResourceBuffer>();
-        _resourceBuffer = rb.transform;
         _isInRightPlace = true;
-        _slot = _resourceBuffer;
-        transform.SetParent(_slot);
     }
 
     void Update()
@@ -43,7 +39,7 @@ public class Resource : MonoBehaviour
         _isInRightPlace = true;
     }
 
-    void MoveToSlot()
+    void MoveToSlot() //call this each frame
     {
         if(_isInRightPlace)
             return;

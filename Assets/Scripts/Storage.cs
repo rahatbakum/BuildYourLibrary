@@ -5,11 +5,11 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
 {
     protected Resource[] Items; //default is protected, make public or SerializeField for debug
     protected Transform[] Slots;
-    public Vector3Int MaxItemAmount = new Vector3Int(4,3,1);
-    public Vector3 StorageOffset = new Vector3(-0.4f, 0.1f, 0f);
-    public Vector3 ResourceSize  = new Vector3(0.4f, 0.2f, 0.2f);
-    public Vector3 DefaultRotation = new Vector3(0f, 0f, 0f);
-    public bool[] IsResourceInCenter = new bool[] {true, false, true};
+    public Vector3Int MaxItemAmount = new Vector3Int(3,3,3);
+    public Vector3 StorageOffset = new Vector3(-0.4f, 0.1f, 0.4f);
+    public Vector3 ResourceSize  = new Vector3(0.45f, 0.25f, 0.25f);
+    public Vector3 DefaultRotation = new Vector3(0f, 90f, 0f); //default rotation of resources
+    public bool[] IsResourceInCenter = new bool[] {true, false, true}; //this var made for repair resource size offset
     public int ItemAmount {get; protected set;}
     
     public int GetMaxItemAmount ()
@@ -21,12 +21,19 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
     {
         Slots = new Transform[GetMaxItemAmount()];
         Quaternion rotation = Quaternion.Euler(DefaultRotation);
+        Transform parentForSlots = new GameObject().transform;
+        parentForSlots.SetParent(transform);
+        parentForSlots.localPosition = Vector3.zero;
+        parentForSlots.localRotation = Quaternion.identity;
+        parentForSlots.name = "Slots";
 
         for (int i = 0; i < GetMaxItemAmount(); i++)
         {
-            Slots[i] = Instantiate(new GameObject(), transform).transform;
+            Slots[i] = new GameObject().transform;
+            Slots[i].SetParent(parentForSlots);
             Slots[i].localPosition = LocalPositionByNumber(i);
             Slots[i].localRotation = rotation;
+            Slots[i].name = $"Slot {i}";
         }
     }
 
@@ -86,7 +93,7 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         ItemAmount++;
     }
 
-    public virtual void RemoveItemByNumber(IResourceHolder sender, int number)
+    public virtual void RemoveItem(IResourceHolder sender, int number)
     {
         sender.AddNewItem(Items[number]);
 
@@ -107,14 +114,14 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         ItemAmount--;
     }
 
-    public virtual void RemoveItem(IResourceHolder sender, ResourceType resourceType)
+    public virtual void RemoveItem(IResourceHolder sender, ResourceType resourceType) //removes Item by ResourceType
     {
         if(resourceType == ResourceType.Empty)
             throw new System.Exception("resourceType == ResourceType.Empty");
 
          if(resourceType == ResourceType.Any)
         {
-            RemoveItemByNumber(sender, ItemAmount - 1);
+            RemoveItem(sender, ItemAmount - 1);
             return;
         }
 
@@ -122,13 +129,13 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         {
             if(Items[i].resourceType == resourceType)
             {
-                RemoveItemByNumber(sender, i);
+                RemoveItem(sender, i);
                 return;
             }
         }
     }
 
-    protected float CorrectCenter(int value, int number)
+    protected float CorrectCenter(int value, int number) 
     {
         return value + (IsResourceInCenter[number] ? 0.5f : 0f); 
     }
@@ -138,7 +145,7 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         return new Vector3(CorrectCenter(value.x, 0), CorrectCenter(value.y, 1), CorrectCenter(value.z, 2)); 
     }
 
-    protected Vector3Int NumberCoords(int number)
+    protected Vector3Int NumberCoords(int number) 
     {
         int yNumber = number / (MaxItemAmount.x * MaxItemAmount.z);
         int layerNumber = number % (MaxItemAmount.x * MaxItemAmount.z);

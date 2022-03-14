@@ -5,7 +5,7 @@ using UnityEngine;
 public class GivingStorage : Storage
 {
 
-    public float GivingTimeInterval = 0.5f;
+    public float GivingTimeInterval = 0.15f;
 
     private float _startTime;
     private float _lastGiveTime;
