@@ -561,11 +561,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 102910316}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &102910318
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -671,11 +671,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 112324574}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &112324576
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -708,11 +708,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 130381975}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &130381977
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -745,11 +745,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 130944856}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &130944858
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -908,11 +908,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 138239461}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &138239463
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1763,11 +1763,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 384953413}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &384953415
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2210,11 +2210,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 481065608}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &481065610
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2842,7 +2842,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 722311868}
-  - component: {fileID: 722311869}
   m_Layer: 0
   m_Name: ResourceBuffer
   m_TagString: Untagged
@@ -2876,18 +2875,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &722311869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 722311867}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce9099233fa375743a86d872f8ddb463, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &723590108
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5547,11 +5534,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1481162021}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &1481162023
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5716,6 +5703,8 @@ MonoBehaviour:
   ResourceSize: {x: 0.45, y: 0.25, z: 0.25}
   DefaultRotation: {x: 0, y: 90, z: 0}
   IsResourceInCenter: 010001
+  RequiringResources: 01000000
+  AmountOfRequiringResources: 05000000
   GivingTimeInterval: 0.15
 --- !u!1001 &1546573066
 PrefabInstance:
@@ -5808,11 +5797,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1546573067}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &1546573069
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6078,11 +6067,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1570059957}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &1570059959
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6275,11 +6264,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1618196920}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &1618196922
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -7322,11 +7311,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1851860525}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9abf8711b28bfba45928c50337d4ba0a, type: 3}
+  m_Script: {fileID: 11500000, guid: 839b6eb988ede5343b7c6d9a5f3d8ce2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsAvailableToCatch: 1
-  resourceType: 2
+  resourceType: 0
 --- !u!65 &1851860527
 BoxCollider:
   m_ObjectHideFlags: 0
