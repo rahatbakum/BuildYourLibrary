@@ -91,6 +91,8 @@ public class Factory : Building
             throw new System.Exception("Wrong input resource amount");
         if(_amountOfOutputResource > givingStorage.FullMaxItemAmount)
             throw new System.Exception("Wrong output resource amount");
+        if(_outputResourcePrefab.GetComponent<Resource>().resourceType != _outputResource)
+            Debug.LogWarning("Wrong resource type of prefab");
 
         _startMakingTime = Time.time - _resourceMakingTime;
         gettingStorage.storageEventManager.OnAddNewItem.AddListener(_TryAddNewItem);
