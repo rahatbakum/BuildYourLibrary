@@ -134,6 +134,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7044515163130108735}
+  - component: {fileID: 2521525600382090459}
   m_Layer: 0
   m_Name: House (Uncomplete)
   m_TagString: Untagged
@@ -154,6 +155,55 @@ Transform:
   m_Children:
   - {fileID: 7616450108518050407}
   - {fileID: 7370594110916053288}
+  - {fileID: 7420729137852167003}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2521525600382090459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7676655611786379653}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8f3d095938e9ec4592a826dd4fb15ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  givingStorage: {fileID: 0}
+  _outputResource: 2
+  _amountOfOutputResource: 1
+  _resourceMakingTime: 1.5
+  _outputSlot: {fileID: 7420729137852167003}
+  _outputResourcePrefab: {fileID: 942009430362204500, guid: b7ae2d0b659dce94d83ec268e6a39925, type: 3}
+--- !u!1 &8420635909610492774
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7420729137852167003}
+  m_Layer: 0
+  m_Name: OutputSlot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7420729137852167003
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8420635909610492774}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.25, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 7044515163130108735}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
