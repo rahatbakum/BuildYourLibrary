@@ -6,6 +6,12 @@ TagManager:
   tags:
   - Storage
   - Resource
+  - UI
+  - Helper
+  - EventSystem
+  - Container
+  - Building
+  - Enviroment
   layers:
   - Default
   - TransparentFX
