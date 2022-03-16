@@ -1,19 +1,21 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 [RequireComponent (typeof(BoxCollider))]
 public class GettingStorage : Storage
 {
+    private const string ResourceTag = "Resource";
+
     public ResourceType[] RequiringResources = new ResourceType[] {ResourceType.Any};
     public int[] AmountOfRequiringResources = new int[] {5};
     
-    public float GivingTimeInterval = 0.15f;
+    [SerializeField] private float _gettingTime = 0.15f;
 
-    private float _startTime;
-    private float _lastGiveTime;
+    private float _lastGetTime;
 
 
-    private void CheckIsRightLengths ()
+    private void CheckIsRightLengths() //this method made for bug avoiding
     {
          if(RequiringResources.Length != AmountOfRequiringResources.Length)
             throw new System.Exception($"RequiringResources.Length != AmountOfRequiringResources.Length ({RequiringResources.Length}, {AmountOfRequiringResources.Length})");
@@ -64,23 +66,23 @@ public class GettingStorage : Storage
         CheckIsRightLengths();
     }
 
-    public void SetNewRequiringResources(ResourceType resourceType, int amount)
-    {
-        CheckIsRightLengths();
+    // public void SetNewRequiringResources(ResourceType resourceType, int amount)
+    // {
+    //     CheckIsRightLengths();
 
-        int requiringResourceIndex = GetRequiringResourceIndex(resourceType);
-        if(AmountOfRequiringResources[requiringResourceIndex] > 0)
-        {
-            AmountOfRequiringResources[requiringResourceIndex] += amount;
-            return;
-        }
+    //     int requiringResourceIndex = GetRequiringResourceIndex(resourceType);
+    //     if(requiringResourceIndex >= 0 && AmountOfRequiringResources[requiringResourceIndex] > 0)
+    //     {
+    //         AmountOfRequiringResources[requiringResourceIndex] += amount;
+    //         return;
+    //     }
 
-        System.Array.Resize<ResourceType>(ref RequiringResources, RequiringResources.Length);
-        RequiringResources[RequiringResources.Length - 1] = resourceType;
+    //     System.Array.Resize<ResourceType>(ref RequiringResources, RequiringResources.Length + 1);
+    //     RequiringResources[RequiringResources.Length - 1] = resourceType;
         
-        System.Array.Resize<int>(ref AmountOfRequiringResources, AmountOfRequiringResources.Length);
-        AmountOfRequiringResources[AmountOfRequiringResources.Length - 1] = amount;
-    }
+    //     System.Array.Resize<int>(ref AmountOfRequiringResources, AmountOfRequiringResources.Length + 1);
+    //     AmountOfRequiringResources[AmountOfRequiringResources.Length - 1] = amount;
+    // }
 
     private void DecreaseResourceAmount(ResourceType resourceType)
     {
@@ -89,43 +91,34 @@ public class GettingStorage : Storage
         AmountOfRequiringResources[requiringResourceIndex]--;
     }
 
-    public override void AddNewItem(Resource resource)
+    public override bool AddNewItem(Resource resource)
     {
         ResourceType isNeedThisResource = IsNeedThisResource(resource.resourceType);
         if(isNeedThisResource == ResourceType.Empty)
             throw new System.Exception($"GettingStorage don't need {resource.resourceType}");
-        base.AddNewItem(resource);
-
+        bool isSuccess = base.AddNewItem(resource);
         DecreaseResourceAmount(isNeedThisResource);
+
+        return isSuccess;
     }
 
     protected override void Start()
     {
         base.Start();
         
-        _startTime = Time.time;
-        _lastGiveTime = _startTime;
+        _lastGetTime = Time.time - _gettingTime;
 
         CheckIsRightLengths();
 
-        BoxCollider boxCollider = GetComponent<BoxCollider>();
-        Collider[] colliders = Physics.OverlapBox(transform.position + boxCollider.center, boxCollider.size * 0.5f, transform.rotation);
-        foreach(var collider in colliders)
-        {
-            if(collider.tag == "Resource"){
-                Resource resource = collider.GetComponent<Resource>();
-                if(IsNeedThisResource(resource.resourceType) != ResourceType.Empty)
-                    AddNewItem(collider.GetComponent<Resource>());
-            }
-        }
+        TryAddNearWildResources((Resource resource) => IsNeedThisResource(resource.resourceType) != ResourceType.Empty);
     }
 
     
 
-    void OnTriggerStay(Collider other)
+    private void OnTriggerStay(Collider other)
     {
 
-        if(Time.time - _lastGiveTime < GivingTimeInterval)
+        if(Time.time - _lastGetTime < _gettingTime)
             return;
 
         if(other?.tag != "Player")
@@ -137,15 +130,22 @@ public class GettingStorage : Storage
         
         if(IsFull())
             return;
-        
-        if(IsNeedThisResource(ResourceType.Any) == ResourceType.Empty)
+
+        if(playerStorage.IsHasResourceType(ResourceType.Any) < 0)
             return;
 
-        if(!playerStorage.IsHasResourceType(ResourceType.Any))
-            return;
-        
-        playerStorage.RemoveItem(this as IResourceHolder, ResourceType.Any);
+        for(int i = 0; i < RequiringResources.Length; i++)
+        {
+            if(AmountOfRequiringResources[i] > 0)
+            {
+                int number = playerStorage.IsHasResourceType(RequiringResources[i]);
+                if(number >= 0)
+                {
+                    playerStorage.RemoveItem(this as IResourceHolder, number);
+                }
+            }
+        }
 
-        _lastGiveTime = Time.time;
+        _lastGetTime = Time.time;
     }
 }

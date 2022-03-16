@@ -5,32 +5,23 @@ using UnityEngine;
 public class GivingStorage : Storage
 {
 
-    public float GivingTimeInterval = 0.15f;
+    [SerializeField] private float _givingTime = 0.15f;
 
-    private float _startTime;
     private float _lastGiveTime;
 
     protected override void Start()
     {
         base.Start();
         
-        _startTime = Time.time;
-        _lastGiveTime = _startTime;
+        _lastGiveTime = Time.time - _givingTime;
 
-        BoxCollider boxCollider = GetComponent<BoxCollider>();
-        Collider[] colliders = Physics.OverlapBox(transform.position + boxCollider.center, boxCollider.size * 0.5f, transform.rotation);
-        foreach(var collider in colliders)
-        {
-            if(collider.tag == "Resource"){
-                AddNewItem(collider.GetComponent<Resource>());
-            }
-        }
+        TryAddNearWildResources((Resource resource) => true);
     }
 
 
     void OnTriggerStay(Collider other)
     {
-        if(Time.time - _lastGiveTime < GivingTimeInterval)
+        if(Time.time - _lastGiveTime < _givingTime)
             return;
 
         if(other?.tag != "Player")
@@ -43,7 +34,7 @@ public class GivingStorage : Storage
         if(playerStorage.IsFull())
             return;
         
-        if(!IsHasResourceType(ResourceType.Any))
+        if(IsHasResourceType(ResourceType.Any) < 0)
             return;
         
         RemoveItem(playerStorage as IResourceHolder, ResourceType.Any);

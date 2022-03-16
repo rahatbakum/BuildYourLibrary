@@ -1,64 +1,75 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Resource : MonoBehaviour
 {
-    const float AnimationSpeed = 10f;
-    const float AnimationRotationSpeed = 5f;
-    const float MinGoodDistance = 0.025f;
+    private const float AnimationSpeed = 10f;
+    private const float AnimationRotationSpeed = 6f;
+    private const float MinGoodDistance = 0.025f;
+    public static readonly Vector3 ResourceSize = new Vector3(0.4f, 0.2f, 0.2f);
+    public static readonly bool[] IsResourceInCenter = new bool[] {true, false, true};
 
     public bool IsAvailableToCatch = true;
     public ResourceType resourceType;
 
     private bool _isInRightPlace;
     private Transform _resourceBuffer;
-    private Transform _slot;
+    public Transform _slot;
 
-    void Awake()
+    public UnityEvent OnSetInRightPlace = new UnityEvent();
+
+    private void Awake()
     {
         _isInRightPlace = true;
     }
 
-    void Update()
+    private void Update()
     {
-        MoveToSlot();
+        if(!_isInRightPlace)
+            MoveToSlot();
     }
 
-    public void SetNewResourceHolder (Transform slot)
+    public void ForceSetNewSlot(Transform slot)
+    {
+         _isInRightPlace = false;
+        _slot = slot;
+        transform.SetParent(_slot);
+    }
+
+    public void SetNewSlot(Transform slot)
     {
         if(!IsAvailableToCatch)
             return;
 
-        _isInRightPlace = false;
-        _slot = slot;
-        transform.SetParent(_slot);
+        ForceSetNewSlot(slot);
     }
-    void SetInRightPlace()
+
+    private void SetInRightPlace()
     {
         transform.position = _slot.position;
         transform.rotation = _slot.rotation;
         _isInRightPlace = true;
+        OnSetInRightPlace.Invoke();
     }
 
-    void MoveToSlot() //call this each frame
+    private void MoveToSlot() //call this each frame
     {
-        if(_isInRightPlace)
-            return;
-
         if (Vector3.Distance(transform.position, _slot.position) > MinGoodDistance)
         {
             transform.localPosition = Vector3.Lerp(transform.localPosition, Vector3.zero, AnimationSpeed * Time.deltaTime);
             transform.rotation = Quaternion.Lerp(transform.rotation, _slot.rotation, AnimationRotationSpeed * Time.deltaTime);
         }
-        else {
+        else
+        {
             SetInRightPlace();
         }
     }
 }
 
 public enum ResourceType
-    {
-        Empty,
-        Any,
-        Wood,
-        Paper
-    }
+{
+    Empty,
+    Any,
+    Wood,
+    Paper
+}

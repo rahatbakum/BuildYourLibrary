@@ -3,15 +3,16 @@ using UnityEngine;
 public class PlayerFollower : MonoBehaviour
 {
     [SerializeField] private Transform _player;
-    public float speed = 8f;
+    [SerializeField] private float _speed = 8f;
     private Vector3 _startOffset;
 
-    void Start()
+    private void Start()
     {
         _startOffset = transform.position - _player.position;
     }
-    void FixedUpdate()
+
+    private void FixedUpdate()
     {
-        transform.position = Vector3.Lerp(transform.position, _player.position + _startOffset, speed * Time.fixedDeltaTime);
+        transform.position = Vector3.Lerp(transform.position, _player.position + _startOffset, _speed * Time.fixedDeltaTime);
     }
 }

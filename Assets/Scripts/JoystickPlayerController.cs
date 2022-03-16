@@ -10,12 +10,12 @@ public class JoystickPlayerController : MonoBehaviour
     [SerializeField] private PlayerController _playerController;
     private Joystick _joystick;
 
-    void Start()
+    private void Start()
     {
         _joystick = GetComponent<Joystick>();
     }
     
-    void Update()
+    private void Update()
     {
         if(_joystick.Horizontal != 0 || _joystick.Vertical != 0)
             _playerController.Move(new Vector2(_joystick.Horizontal, _joystick.Vertical));

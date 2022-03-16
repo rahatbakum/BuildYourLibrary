@@ -1,73 +1,89 @@
 using UnityEngine;
-
+using System;
 
 public abstract class Storage : MonoBehaviour, IResourceHolder
 {
-    protected Resource[] Items; //default is protected, make public or SerializeField for debug
+    private const float ResourceInterval = 0.05f;
+
+    public Resource[] Items; //default is protected, make public or SerializeField for debug
     protected Transform[] Slots;
-    public Vector3Int MaxItemAmount = new Vector3Int(3,3,3);
-    public Vector3 StorageOffset = new Vector3(-0.4f, 0.1f, 0.4f);
-    public Vector3 ResourceSize  = new Vector3(0.45f, 0.25f, 0.25f);
-    public Vector3 DefaultRotation = new Vector3(0f, 90f, 0f); //default rotation of resources
-    public bool[] IsResourceInCenter = new bool[] {true, false, true}; //this var made for repair resource size offset
+    [SerializeField] protected Vector3Int MaxItemAmount = new Vector3Int(3,3,3);
+    [SerializeField] protected Vector3 StorageOffset = new Vector3(-0.4f, 0.1f, 0.4f);
+    [SerializeField] protected Vector3 DefaultRotation = new Vector3(0f, 90f, 0f); //default rotation of resources
+
+    [HideInInspector] public StorageEventManager storageEventManager = new StorageEventManager();
+    
     public int ItemAmount {get; protected set;}
     
-    public int GetMaxItemAmount ()
+    public int FullMaxItemAmount 
     {
-        return MaxItemAmount.x * MaxItemAmount.y * MaxItemAmount.z;
+        get => MaxItemAmount.x * MaxItemAmount.y * MaxItemAmount.z;
+    }
+
+    private GameObject CleanLocalInstantiate(string name, Vector3 localPosition, Quaternion localRotation, Transform parent)
+    {
+        GameObject newGameObject = new GameObject(name);
+        newGameObject.transform.SetParent(parent);
+        newGameObject.transform.localPosition = localPosition;
+        newGameObject.transform.localRotation = localRotation;
+        
+        return newGameObject;
     }
 
     private void CreateNewSlots()
     {
-        Slots = new Transform[GetMaxItemAmount()];
+        Slots = new Transform[FullMaxItemAmount];
         Quaternion rotation = Quaternion.Euler(DefaultRotation);
-        Transform parentForSlots = new GameObject().transform;
-        parentForSlots.SetParent(transform);
-        parentForSlots.localPosition = Vector3.zero;
-        parentForSlots.localRotation = Quaternion.identity;
-        parentForSlots.name = "Slots";
 
-        for (int i = 0; i < GetMaxItemAmount(); i++)
+        Transform parentForSlots = CleanLocalInstantiate("Slots", Vector3.zero, Quaternion.identity, transform).transform;
+
+        for (int i = 0; i < FullMaxItemAmount; i++)
+            Slots[i] = CleanLocalInstantiate($"Slot {i}", LocalPositionByNumber(i), rotation, parentForSlots).transform;
+    }
+
+    protected void TryAddNearWildResources(Predicate<Resource> condition)
+    {
+        BoxCollider boxCollider = GetComponent<BoxCollider>();
+        Collider[] colliders = Physics.OverlapBox(transform.position + boxCollider.center, boxCollider.size * 0.5f, transform.rotation);
+        foreach(var collider in colliders)
         {
-            Slots[i] = new GameObject().transform;
-            Slots[i].SetParent(parentForSlots);
-            Slots[i].localPosition = LocalPositionByNumber(i);
-            Slots[i].localRotation = rotation;
-            Slots[i].name = $"Slot {i}";
+            if(collider.tag == "Resource"){
+                Resource resource = collider.GetComponent<Resource>();
+                if(condition(resource))
+                    AddNewItem(collider.GetComponent<Resource>());
+            }
         }
     }
 
     protected virtual void Start()
     {
-        Items = new Resource[GetMaxItemAmount()];
+        Items = new Resource[FullMaxItemAmount];
         ItemAmount = 0;
 
         CreateNewSlots();
-
     }
 
-    public bool IsHasResourceType(ResourceType resourceType)
+    public int IsHasResourceType(ResourceType resourceType) //returns index when ResourseType is in, returns -1 when here is no requiring ResourceType
     {
-        
         if(resourceType == ResourceType.Any)
-            return ItemAmount > 0;
+            return ItemAmount > 0 ? ItemAmount - 1 : -1;
         if(resourceType == ResourceType.Empty)
-            return ItemAmount < GetMaxItemAmount();
+            throw new System.Exception("ResourceType is Empty");
 
-        foreach (var item in Items)
-            if(item.resourceType == resourceType)
-                return true;
-        return false;
+        for(int i = ItemAmount - 1; i >= 0; i--)
+            if(Items[i].resourceType == resourceType)
+                return i;
+        return -1;
     }
 
-    public ResourceType LastResourceType(int number)
+    public ResourceType this[int index]
     {
-        return Items[GetMaxItemAmount() - number - 1].resourceType;
+        get => Items[index].resourceType;
     }
 
     public bool IsFull()
     {
-        return ItemAmount >= GetMaxItemAmount();
+        return ItemAmount >= FullMaxItemAmount;
     }
 
     protected bool isInThisStorage(Resource resource)
@@ -81,66 +97,86 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         return false;
     }
 
-    public virtual void AddNewItem(Resource resource)
+    public virtual bool AddNewItem(Resource resource) //returns false when error, returns true when success
     {
         if(!resource.IsAvailableToCatch)
             throw new System.Exception($"Resource {resource.resourceType} is not available to catch");
         
         if( IsFull() || isInThisStorage(resource))
-            return;
+            return false;
+
         Items[ItemAmount] = resource;
-        resource.SetNewResourceHolder(Slots[ItemAmount]);
+        resource.SetNewSlot(Slots[ItemAmount]);
         ItemAmount++;
+
+        storageEventManager.OnAddNewItem.Invoke();
+        if(IsFull())
+            storageEventManager.OnFull.Invoke();
+        return true;
+    }
+
+    private void InvokeRemoveItemEvents()
+    {
+        storageEventManager.OnRemoveItem.Invoke();
+        if(ItemAmount <= 0)
+            storageEventManager.OnEmpty.Invoke();
+    }
+
+    private void ShiftItem(int number)
+    {
+        Items[number].ForceSetNewSlot(Slots[number - 1]);
+        Items[number] = Items[number + 1];
     }
 
     public virtual void RemoveItem(IResourceHolder sender, int number)
     {
-        sender.AddNewItem(Items[number]);
+        if(!sender.AddNewItem(Items[number]))
+            return;
 
-        if(number >= ItemAmount - 1)
+        if(number > ItemAmount - 1)
+            throw new System.Exception("Index > ItemAmount - 1");
+
+        if(number == ItemAmount - 1)
         {
+            Items[number] = null;
             ItemAmount--;
+            InvokeRemoveItemEvents();
             return;
         }
 
         Items[number] = Items[number + 1];
-        for (int i = number + 1; i < ItemAmount - 1; i++)
+        for (int i = number + 1; i < ItemAmount; i++)
         {
-            Items[i].SetNewResourceHolder(Slots[i]);
-            Items[i] = Items[i + 1];
+            ShiftItem(i);
         }
-        Items[ItemAmount - 2].SetNewResourceHolder(Slots[ItemAmount - 1]);
-        Items[ItemAmount - 1] = null;
         ItemAmount--;
+
+        InvokeRemoveItemEvents();
     }
 
     public virtual void RemoveItem(IResourceHolder sender, ResourceType resourceType) //removes Item by ResourceType
     {
         if(resourceType == ResourceType.Empty)
-            throw new System.Exception("resourceType == ResourceType.Empty");
+            throw new System.Exception("ResourceType is Empty");
 
-         if(resourceType == ResourceType.Any)
+        if(resourceType == ResourceType.Any)
         {
             RemoveItem(sender, ItemAmount - 1);
             return;
         }
 
-        for(int i = ItemAmount - 1; i >= 0; i--)
-        {
-            if(Items[i].resourceType == resourceType)
-            {
-                RemoveItem(sender, i);
-                return;
-            }
-        }
+        int number = IsHasResourceType(resourceType);
+
+        if(number >= 0)
+            RemoveItem(sender, number);
     }
 
     protected float CorrectCenter(int value, int number) 
     {
-        return value + (IsResourceInCenter[number] ? 0.5f : 0f); 
+        return value + (Resource.IsResourceInCenter[number] ? 0.5f : 0f); 
     }
 
-    protected Vector3 CorrectCenterVector(Vector3Int value)
+    protected virtual Vector3 CorrectCenterVector(Vector3Int value)
     {
         return new Vector3(CorrectCenter(value.x, 0), CorrectCenter(value.y, 1), CorrectCenter(value.z, 2)); 
     }
@@ -160,7 +196,8 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         Vector3 startPosition = StorageOffset;
         Vector3Int numberCoords = NumberCoords(number);
         Quaternion defaultRotation = Quaternion.Euler(DefaultRotation);
-        Vector3 resourceSize = defaultRotation * ResourceSize;
+        Vector3 resourceSizeWithIntervals = Resource.ResourceSize + new Vector3(ResourceInterval, ResourceInterval, ResourceInterval);
+        Vector3 resourceSize = defaultRotation * resourceSizeWithIntervals;
         Vector3 axisNumbers = CorrectCenterVector(numberCoords);
         return startPosition + new Vector3(axisNumbers.x * resourceSize.x, axisNumbers.y * resourceSize.y, axisNumbers.z * resourceSize.z);
     }
