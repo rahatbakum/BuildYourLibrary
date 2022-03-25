@@ -1,6 +1,11 @@
-using UnityEngine;
-
 public interface IResourceHolder
 {
-    bool AddNewItem(Resource resource);
+    int ItemAmount {get;}
+    ResourceType this[int index] {get;}
+    int FullMaxItemAmount {get;}
+    public int IsHasResourceType(ResourceType resourceType);
+    public bool IsFull();
+    public bool IsEmpty();
+    void RemoveItem(IResourceGetter resourceGetter, int number);
+    void RemoveItem(IResourceGetter resourceGetter, ResourceType resourceType);
 }

@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
-public class House : Building
+public class House : MonoBehaviour, IResourceMaker
 {
     [SerializeField] private GivingStorage givingStorage;
     [SerializeField] private ResourceType _outputResource = ResourceType.Wood;
@@ -12,25 +13,43 @@ public class House : Building
     [SerializeField] private Transform _outputSlot;
     [SerializeField] private GameObject _outputResourcePrefab;
 
+    private HouseState _thisHouseState = HouseState.Making;
+    public HouseState ThisHouseState
+    {
+        get => _thisHouseState; 
+        private set
+        {
+            _thisHouseState = value;
+            if(value == HouseState.Making)
+                OnStartMaking.Invoke();
+            else 
+                OnStopMaking.Invoke();
+        }
+    }
+
+    public UnityEvent OnStartMaking = new UnityEvent();
+    public UnityEvent OnStopMaking = new UnityEvent();
+
     private float _startMakingTime;
     private bool _isMaking = false;
 
-    private void StartMaking()
+    public void StartMaking()
     {
         if(_isMaking)
             return;
 
         if(givingStorage.IsFull())
         {
-            Debug.Log("GivingStorage is full");
+            ThisHouseState = HouseState.GivingStorageIsFull;
             return;
         }
 
+        ThisHouseState = HouseState.Making;
         _isMaking = true;
         _startMakingTime = Time.time;
     }
 
-    private void FinishMaking()
+    public void FinishMaking()
     {
         _isMaking = false;
         for(int i = 0; i < _amountOfOutputResource; i++)
@@ -39,12 +58,6 @@ public class House : Building
             givingStorage.AddNewItem(resource);
         }
         StartMaking();
-    }
-
-    public override bool AddNewItem(Resource resource)
-    {
-        Debug.LogWarning("House can't get Items");
-        return false;
     }
 
     private void Start()
@@ -64,4 +77,10 @@ public class House : Building
         if(_isMaking && Time.time - _startMakingTime > _resourceMakingTime)
             FinishMaking();
     }
+}
+
+public enum HouseState
+{
+    Making,
+    GivingStorageIsFull
 }

@@ -14,7 +14,7 @@ public class Resource : MonoBehaviour
 
     private bool _isInRightPlace;
     private Transform _resourceBuffer;
-    public Transform _slot;
+    [HideInInspector] public Transform _slot;
 
     public UnityEvent OnSetInRightPlace = new UnityEvent();
 

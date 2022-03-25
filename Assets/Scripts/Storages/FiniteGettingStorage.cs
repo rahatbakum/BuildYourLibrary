@@ -67,21 +67,52 @@ public class FiniteGettingStorage : GettingStorage
         return _fullAmountOfRequiringResources <= 0;
     }
 
-    private void DecreaseResourceAmount(ResourceType resourceType)
+    private void DecreaseResourceAmount(ResourceType resourceType, int value = 1)
     {
         int requiringResourceIndex = GetRequiringResourceIndex(resourceType);
         
-        AmountOfRequiringResources[requiringResourceIndex]--;
-        _fullAmountOfRequiringResources--;
+        AmountOfRequiringResources[requiringResourceIndex] -= value;
+        _fullAmountOfRequiringResources -= value;
     }
 
-    public override bool AddNewItem(Resource resource)
+    private void IncreaseResourceAmount(ResourceType resourceType, int value = 1)
     {
-        bool isSuccess = base.AddNewItem(resource);
+        int requiringResourceIndex = GetRequiringResourceIndex(resourceType);
+        
+        if(requiringResourceIndex == -1)
+        {
+            Array.Resize<ResourceType>(ref RequiringResources, RequiringResources.Length + 1);
+            Array.Resize<int>(ref AmountOfRequiringResources, AmountOfRequiringResources.Length + 1);
+            RequiringResources[RequiringResources.Length - 1] = resourceType;
+            AmountOfRequiringResources[AmountOfRequiringResources.Length - 1] = value;
+            return;
+        }
+
+        AmountOfRequiringResources[requiringResourceIndex]++;
+        _fullAmountOfRequiringResources++;
+    }
+
+    public override bool AddNewItem(Resource resource, bool isInvokeEvents = true)
+    {
+
+        bool isSuccess = base.AddNewItem(resource, false);
         if(isSuccess)
+        {
             DecreaseResourceAmount(IsNeedThisResource(resource.resourceType));
+            if(isInvokeEvents)
+            {
+                storageEventManager.OnAddNewItem.Invoke();
+                if(IsFull())
+                    storageEventManager.OnFull.Invoke();
+            }
+        }
 
         return isSuccess;
+    }
+
+    protected override void Start()
+    {
+        base.Start();
     }
 
 }

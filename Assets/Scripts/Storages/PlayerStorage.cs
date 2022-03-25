@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class PlayerStorage : Storage
 {
-    public override bool AddNewItem(Resource resource)
+    public override bool AddNewItem(Resource resource, bool isInvokeEvents = true)
     {
         bool isSuccess = base.AddNewItem(resource);
         resource.IsAvailableToCatch = false;
         return isSuccess;
     }
 
-    public override void RemoveItem(IResourceHolder sender, int number)
+    public override void RemoveItem(IResourceGetter sender, int number)
     {
         Items[number].IsAvailableToCatch = true;
         base.RemoveItem(sender, number);

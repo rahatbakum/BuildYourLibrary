@@ -1,6 +1,7 @@
 using UnityEngine.Events;
+using UnityEngine;
 
-public class StorageEventManager
+public class StorageEventManager : MonoBehaviour
 {
     public UnityEvent OnFull = new UnityEvent();
     public UnityEvent OnEmpty = new UnityEvent();

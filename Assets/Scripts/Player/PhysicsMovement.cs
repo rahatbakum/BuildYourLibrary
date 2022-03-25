@@ -19,7 +19,7 @@ public class PhysicsMovement
 
     public void Move(Vector2 axisDirection){
         Vector3 worldDirection = _worldRight * axisDirection.x + _worldForward * axisDirection.y;
-        Vector3 offset = worldDirection * _speed * Time.deltaTime;
+        Vector3 offset = worldDirection * _speed * Time.fixedDeltaTime;
         
         _rigidbody.MovePosition(_transform.position +  offset);
         _transform.LookAt (_transform.position + offset);

@@ -12,6 +12,7 @@ TagManager:
   - Container
   - Building
   - Enviroment
+  - CreatorOrDestroyer
   layers:
   - Default
   - TransparentFX

@@ -1,17 +1,18 @@
 using UnityEngine;
 using System;
 
-public abstract class Storage : MonoBehaviour, IResourceHolder
+[RequireComponent(typeof(StorageEventManager))]
+public class Storage : MonoBehaviour, IResourceGetter, IResourceHolder
 {
     private const float ResourceInterval = 0.05f;
 
-    public Resource[] Items; //default is protected, make public or SerializeField for debug
+    protected Resource[] Items; //default is protected, make public or SerializeField for debug
     protected Transform[] Slots;
     [SerializeField] protected Vector3Int MaxItemAmount = new Vector3Int(3,3,3);
     [SerializeField] protected Vector3 StorageOffset = new Vector3(-0.4f, 0.1f, 0.4f);
     [SerializeField] protected Vector3 DefaultRotation = new Vector3(0f, 90f, 0f); //default rotation of resources
 
-    [HideInInspector] public StorageEventManager storageEventManager = new StorageEventManager();
+    [HideInInspector] public StorageEventManager storageEventManager;
     
     public int ItemAmount {get; protected set;}
     
@@ -49,10 +50,16 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         {
             if(collider.tag == "Resource"){
                 Resource resource = collider.GetComponent<Resource>();
-                if(condition(resource))
+                if(condition(resource) && resource._slot == null)
                     AddNewItem(collider.GetComponent<Resource>());
             }
         }
+    }
+
+    
+    private void Awake()
+    {
+        storageEventManager = GetComponent<StorageEventManager>();
     }
 
     protected virtual void Start()
@@ -61,6 +68,7 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         ItemAmount = 0;
 
         CreateNewSlots();
+
     }
 
     public int IsHasResourceType(ResourceType resourceType) //returns index when ResourseType is in, returns -1 when here is no requiring ResourceType
@@ -86,7 +94,12 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         return ItemAmount >= FullMaxItemAmount;
     }
 
-    protected bool isInThisStorage(Resource resource)
+    public virtual bool IsEmpty()
+    {
+        return ItemAmount <= 0;
+    }
+
+    protected bool IsInThisStorage(Resource resource)
     {
         foreach(var item in Items)
         {
@@ -97,40 +110,49 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         return false;
     }
 
-    public virtual bool AddNewItem(Resource resource) //returns false when error, returns true when success
+    ///<summary>
+    ///Returns false when error, returns true when success
+    ///</summary>
+    public virtual bool AddNewItem(Resource resource, bool isInvokeEvents = true) 
     {
         if(!resource.IsAvailableToCatch)
             throw new System.Exception($"Resource {resource.resourceType} is not available to catch");
         
-        if( IsFull() || isInThisStorage(resource))
+        if( IsFull() || IsInThisStorage(resource))
             return false;
 
         Items[ItemAmount] = resource;
         resource.SetNewSlot(Slots[ItemAmount]);
         ItemAmount++;
 
-        storageEventManager.OnAddNewItem.Invoke();
-        if(IsFull())
-            storageEventManager.OnFull.Invoke();
+        if(isInvokeEvents)
+        {
+            storageEventManager.OnAddNewItem.Invoke();
+            if(IsFull())
+                storageEventManager.OnFull.Invoke();
+        }
         return true;
     }
 
     private void InvokeRemoveItemEvents()
     {
         storageEventManager.OnRemoveItem.Invoke();
-        if(ItemAmount <= 0)
+        if(IsEmpty())
             storageEventManager.OnEmpty.Invoke();
     }
 
     private void ShiftItem(int number)
     {
         Items[number].ForceSetNewSlot(Slots[number - 1]);
-        Items[number] = Items[number + 1];
+        if(number == ItemAmount - 1)
+            Items[number] = null;
+        else
+            Items[number] = Items[number + 1];
     }
 
-    public virtual void RemoveItem(IResourceHolder sender, int number)
+    public virtual void RemoveItem(IResourceGetter sender, int number)
     {
-        if(!sender.AddNewItem(Items[number]))
+        if(!sender.AddNewItem(Items[number], true))
             return;
 
         if(number > ItemAmount - 1)
@@ -154,7 +176,7 @@ public abstract class Storage : MonoBehaviour, IResourceHolder
         InvokeRemoveItemEvents();
     }
 
-    public virtual void RemoveItem(IResourceHolder sender, ResourceType resourceType) //removes Item by ResourceType
+    public virtual void RemoveItem(IResourceGetter sender, ResourceType resourceType) //removes Item by ResourceType
     {
         if(resourceType == ResourceType.Empty)
             throw new System.Exception("ResourceType is Empty");

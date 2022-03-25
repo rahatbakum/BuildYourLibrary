@@ -37,7 +37,7 @@ public class GivingStorage : Storage
         if(IsHasResourceType(ResourceType.Any) < 0)
             return;
         
-        RemoveItem(playerStorage as IResourceHolder, ResourceType.Any);
+        RemoveItem(playerStorage, ResourceType.Any);
 
         _lastGiveTime = Time.time;
     }

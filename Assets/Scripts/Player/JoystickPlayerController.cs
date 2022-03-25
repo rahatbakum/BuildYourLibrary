@@ -15,7 +15,7 @@ public class JoystickPlayerController : MonoBehaviour
         _joystick = GetComponent<Joystick>();
     }
     
-    private void Update()
+    private void FixedUpdate()
     {
         if(_joystick.Horizontal != 0 || _joystick.Vertical != 0)
             _playerController.Move(new Vector2(_joystick.Horizontal, _joystick.Vertical));
